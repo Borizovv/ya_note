@@ -3,6 +3,7 @@ from http import HTTPStatus
 from django.test import TestCase
 from django.urls import reverse
 from django.contrib.auth import get_user_model
+from django.conf import settings
 from typing import Tuple
 
 from notes.models import Note
@@ -59,7 +60,6 @@ class TestRoutes(TestCase):
         """Тестируем редирект анонимного пользователя
         на страницу логина по маршруту users:login
         """
-        login_url = reverse('users:login')
         for name in paths_names_without_slug + paths_names_with_slug:
             if name == 'notes:home' or name == 'notes:success':
                 continue
@@ -68,6 +68,6 @@ class TestRoutes(TestCase):
                     url = reverse(name, kwargs={'slug': self.note.slug})
                 else:
                     url = reverse(name)
-                redirect_url = f'{login_url}?next={url}'
+                redirect_url = f'{settings.LOGIN_URL}?next={url}'
                 response = self.client.get(url)
                 self.assertRedirects(response, redirect_url)
