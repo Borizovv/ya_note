@@ -14,7 +14,7 @@ TARGET_URLS = {
 
 
 class TestListPage(TestCase):
-    """Тестируем сортировку заметок на странице notes:list"""
+    """Тестируем сортировку заметок по маршруту notes:list"""
 
     @classmethod
     def setUpTestData(cls) -> None:
