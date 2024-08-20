@@ -2,17 +2,14 @@ from http import HTTPStatus
 
 from django.test import TestCase
 from django.urls import reverse
-from django.contrib.auth import get_user_model
 from django.conf import settings
-from typing import Tuple
+
+from notes.tests.test_data import (User,
+                                   PATHS_NAMES_WITHOUT_SLUG,
+                                   PATHS_NAMES_WITH_SLUG
+                                   )
 
 from notes.models import Note
-
-User = get_user_model()
-paths_names_with_slug: Tuple[str] = ('notes:detail', 'notes:edit',
-                                     'notes:delete')
-paths_names_without_slug: Tuple[str] = ('notes:add', 'notes:list',
-                                        'notes:success', 'notes:home')
 
 
 class TestRoutes(TestCase):
@@ -28,17 +25,17 @@ class TestRoutes(TestCase):
             text='Текст',
         )
 
-    def test_home_and_success_pages(self) -> None:
+    def test_home_and_success_pages(self):
         """Тестируем доступность главной страницы и уведомления об успехе"""
-        for index, name in enumerate(paths_names_without_slug):
+        for index, name in enumerate(PATHS_NAMES_WITHOUT_SLUG):
             if name == 'notes:success':
                 self.client.force_login(self.author)
             if name == 'notes:success' or name == 'notes:home':
-                url = reverse(paths_names_without_slug[index])
+                url = reverse(PATHS_NAMES_WITHOUT_SLUG[index])
                 response = self.client.get(url)
                 self.assertEqual(response.status_code, HTTPStatus.OK)
 
-    def test_pages_with_slug(self) -> None:
+    def test_pages_with_slug(self):
         """Тестируем доступность маршрутов для автора/не автора заметки:
         'notes:detail',
         'notes:edit',
@@ -50,21 +47,21 @@ class TestRoutes(TestCase):
         )
         for user, status in users_statuses:
             self.client.force_login(user)
-            for name in paths_names_with_slug:
+            for name in PATHS_NAMES_WITH_SLUG:
                 with self.subTest(user=user, name=name):
                     url = reverse(name, kwargs={'slug': self.note.slug})
                     response = self.client.get(url)
                     self.assertEqual(response.status_code, status)
 
-    def test_redirects_for_anonymous_client(self) -> None:
+    def test_redirects_for_anonymous_client(self):
         """Тестируем редирект анонимного пользователя
         на страницу логина по маршруту users:login
         """
-        for name in paths_names_without_slug + paths_names_with_slug:
+        for name in PATHS_NAMES_WITHOUT_SLUG + PATHS_NAMES_WITH_SLUG:
             if name == 'notes:home' or name == 'notes:success':
                 continue
             with self.subTest(name=name):
-                if name in paths_names_with_slug:
+                if name in PATHS_NAMES_WITH_SLUG:
                     url = reverse(name, kwargs={'slug': self.note.slug})
                 else:
                     url = reverse(name)
