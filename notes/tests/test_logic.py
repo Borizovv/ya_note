@@ -111,4 +111,3 @@ class TestNoteCreationEditDelete(TestCase):
         """
         response = self.user_client.post(self.edit_url, data=self.form_data)
         self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND)
-
